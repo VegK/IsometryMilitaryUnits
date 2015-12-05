@@ -42,7 +42,19 @@ public class FieldController : MonoBehaviour
 
 	private void Update()
 	{
-		
+		if (Input.GetMouseButton(0))
+		{
+			var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			CreateCell(mousePosition);
+		}
+	}
+
+	private CellController CreateCell(Vector2 position)
+	{
+		var x = position.x / SizeX + position.y / SizeY;
+		var y = position.y / SizeY - position.x / SizeX;
+
+		return CreateCell(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
 	}
 
 	private CellController CreateCell(int x, int y)
@@ -54,7 +66,7 @@ public class FieldController : MonoBehaviour
 		var pos = new Vector2();
 		pos.x = (x - y) * SizeX / 2;
 		pos.y = (x + y) * SizeY / 2;
-		cell.transform.position = pos;
+		cell.transform.localPosition = pos;
 
 		return cell;
 	}
