@@ -4,7 +4,8 @@ public class CellController : MonoBehaviour
 {
 	#region Properties
 	#region Public
-	
+	public int X { get; set; }
+	public int Y { get; set; }
 	#endregion
 	#region Private
 
@@ -13,7 +14,7 @@ public class CellController : MonoBehaviour
 
 	#region Methods
 	#region Public
-	
+
 	#endregion
 	#region Private
 	private void Start()
