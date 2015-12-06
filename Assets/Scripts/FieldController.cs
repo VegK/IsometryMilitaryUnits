@@ -17,9 +17,11 @@ public class FieldController : MonoBehaviour
 	public int UnitsCount = 100;
 	#endregion
 	#region Private
+	private float _lengthSize;
 	private bool[,] _field;
 	private Coord _firstClick;
 	private Coord _lastClick;
+	private Vector3? _prevMousePosition;
 	private HashSet<CellController> _squad = new HashSet<CellController>();
 	#endregion
 	#endregion
@@ -31,6 +33,8 @@ public class FieldController : MonoBehaviour
 	#region Private
 	private void Start()
 	{
+		_lengthSize = Vector2.Distance(new Vector2(SizeX, SizeY), Vector2.zero);
+
 		_field = new bool[Width, Height];
 
 		for (int x = 1; x <= Width; x++)
@@ -56,14 +60,35 @@ public class FieldController : MonoBehaviour
 				return;
 
 			var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
 			var cell = CreateCell(mousePosition);
 			if (cell != null)
 				_squad.Add(cell);
+
+			if (_prevMousePosition.HasValue)
+			{
+				var dist = Vector3.Distance(_prevMousePosition.Value, mousePosition);
+				if (dist >= _lengthSize / 3)
+				{
+					var step = _lengthSize / dist / 3;
+					for (float t = step; t < 1; t += step)
+					{
+						var pos = Vector3.Lerp(_prevMousePosition.Value, mousePosition, t);
+
+						cell = CreateCell(pos);
+						if (cell != null)
+							_squad.Add(cell);
+					}
+				}
+			}
+
+			_prevMousePosition = mousePosition;
 		}
 		else if (Input.GetMouseButtonUp(0))
 		{
 			_lastClick = Camera.main.ScreenToWorldPoint(Input.mousePosition).ToCoord(SizeX, SizeY);
 			UpbuildSquad();
+			_prevMousePosition = null;
 		}
 	}
 
@@ -76,6 +101,8 @@ public class FieldController : MonoBehaviour
 
 	private CellController CreateCell(int x, int y)
 	{
+		if (x <= 0 || y <= 0 || x > Width || y > Height)
+			return null;
 		if (_field[x - 1, y - 1])
 			return null;
 
